@@ -3,6 +3,7 @@ import { Button, Result } from "antd";
 import { appContext } from "../utils/store";
 import { useContext, useState } from "react";
 import { useRouter } from "next/router";
+import createGame from "../utils/createGame";
 
 const Welcome = ({ player }) => {
   const router = useRouter();
@@ -13,18 +14,7 @@ const Welcome = ({ player }) => {
     if (!player) {
       openForm();
     } else {
-      setLoading(true);
-      const res = await fetch("/api/games/create", {
-        method: "POST",
-        body: JSON.stringify(player),
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const game = await res.json();
-
-      setLoading(false);
+      const game = await createGame(player, setLoading);
 
       router.push(`/games/${game._id}`);
     }

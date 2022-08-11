@@ -2,7 +2,7 @@ import nookies from "nookies";
 import Player from "../models/Player";
 import connectMongo from "./connectMongo";
 
-const getPlayerFromCookie = async (req) => {
+const getPlayerFromCookie = async (req, res) => {
   const { playerId } = nookies.get({ req });
   let player = null;
 

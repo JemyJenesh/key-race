@@ -4,7 +4,7 @@ import getPlayerFromCookie from "../../utils/getPlayerFromCookie";
 export default function Home({ game, player }) {
   return (
     <main>
-      <h1>GAme: {game._id}</h1>
+      <h1>GAme: {game?._id}</h1>
       <h1>Player: {player?.name}</h1>
     </main>
   );
@@ -12,9 +12,18 @@ export default function Home({ game, player }) {
 
 export async function getServerSideProps({ req, res, query }) {
   try {
-    const player = await getPlayerFromCookie(req);
+    const player = await getPlayerFromCookie(req, res);
 
     const game = await Game.findById(query.id);
+
+    if (!game) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
 
     return {
       props: {

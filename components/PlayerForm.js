@@ -1,26 +1,23 @@
 import { useContext, useState } from "react";
 import { Input, Modal, Form } from "antd";
 import { appContext } from "../utils/store";
+import createPlayer from "../utils/createPlayer";
+import createGame from "../utils/createGame";
+import { useRouter } from "next/router";
 
 const PlayerForm = () => {
+  const router = useRouter();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   const { showForm, closeForm } = useContext(appContext);
 
   const handleSubmit = async (values) => {
-    setLoading(true);
-    const res = await fetch("/api/players/create", {
-      method: "POST",
-      body: JSON.stringify(values),
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    await res.json();
+    const player = await createPlayer(values.name, setLoading);
 
-    setLoading(false);
+    const game = await createGame(player, setLoading);
+
+    router.push(`/games/${game._id}`);
 
     closeForm();
   };

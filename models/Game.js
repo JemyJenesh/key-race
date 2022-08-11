@@ -21,6 +21,6 @@ const gameSchema = new Schema({
   words: [String],
 });
 
-const Game = models.Game || model("Game", gameSchema);
+const Game = models?.Game || model("Game", gameSchema);
 
 export default Game;

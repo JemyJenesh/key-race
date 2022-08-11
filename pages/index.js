@@ -1,9 +1,6 @@
 import { Badge } from "antd";
 import Head from "next/head";
-import nookies from "nookies";
 import Welcome from "../components/Welcome";
-import Player from "../models/Player";
-import connectMongo from "../utils/connectMongo";
 import getPlayerFromCookie from "../utils/getPlayerFromCookie";
 
 export default function Home({ isConnected, player }) {
@@ -31,7 +28,7 @@ export default function Home({ isConnected, player }) {
 
 export async function getServerSideProps({ req, res }) {
   try {
-    const player = await getPlayerFromCookie(req);
+    const player = await getPlayerFromCookie(req, res);
 
     return {
       props: { isConnected: true, player: JSON.parse(JSON.stringify(player)) },
