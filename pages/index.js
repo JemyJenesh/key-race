@@ -4,6 +4,7 @@ import nookies from "nookies";
 import Welcome from "../components/Welcome";
 import Player from "../models/Player";
 import connectMongo from "../utils/connectMongo";
+import getPlayerFromCookie from "../utils/getPlayerFromCookie";
 
 export default function Home({ isConnected, player }) {
   return (
@@ -30,19 +31,7 @@ export default function Home({ isConnected, player }) {
 
 export async function getServerSideProps({ req, res }) {
   try {
-    const { playerId } = nookies.get({ req });
-    let player = null;
-
-    if (playerId) {
-      await connectMongo();
-
-      player = await Player.findById(playerId);
-
-      if (!player) {
-        nookies.destroy({ res }, "playerId");
-        console.log(player);
-      }
-    }
+    const player = await getPlayerFromCookie(req);
 
     return {
       props: { isConnected: true, player: JSON.parse(JSON.stringify(player)) },
