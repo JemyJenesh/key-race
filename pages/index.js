@@ -1,8 +1,11 @@
+import { Badge } from "antd";
 import Head from "next/head";
+import nookies from "nookies";
 import Welcome from "../components/Welcome";
-import clientPromise from "../lib/mongodb";
+import Player from "../models/Player";
+import connectMongo from "../utils/connectMongo";
 
-export default function Home({ isConnected }) {
+export default function Home({ isConnected, player }) {
   return (
     <div>
       <Head>
@@ -14,40 +17,40 @@ export default function Home({ isConnected }) {
       </Head>
 
       <main>
-        {isConnected ? (
-          <h2 className="subtitle">You are connected to MongoDB</h2>
-        ) : (
-          <h2 className="subtitle">
-            You are NOT connected to MongoDB. Check the <code>README.md</code>{" "}
-            for instructions.
-          </h2>
-        )}
+        <Badge
+          color={isConnected ? "green" : "red"}
+          style={{ position: "fixed", right: 0 }}
+        />
 
-        <Welcome />
+        <Welcome player={player} />
       </main>
     </div>
   );
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps({ req, res }) {
   try {
-    await clientPromise;
-    // `await clientPromise` will use the default database passed in the MONGODB_URI
-    // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
-    //
-    // `const client = await clientPromise`
-    // `const db = client.db("myDatabase")`
-    //
-    // Then you can execute queries against your database like so:
-    // db.find({}) or any of the MongoDB Node Driver commands
+    const { playerId } = nookies.get({ req });
+    let player = null;
+
+    if (playerId) {
+      await connectMongo();
+
+      player = await Player.findById(playerId);
+
+      if (!player) {
+        nookies.destroy({ res }, "playerId");
+        console.log(player);
+      }
+    }
 
     return {
-      props: { isConnected: true },
+      props: { isConnected: true, player: JSON.parse(JSON.stringify(player)) },
     };
   } catch (e) {
     console.error(e);
     return {
-      props: { isConnected: false },
+      props: { isConnected: false, player: null },
     };
   }
 }
